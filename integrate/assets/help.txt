@@ -1,0 +1,27 @@
+USAGE
+
+    integ master [-n NUMBER] [-s VALUE] [-p PORT]
+    integ slave [-p PORT] [-m HOST]
+    integ -h
+
+OPTIONS
+
+    -n|--number NUMBER
+    The number of expected slaves.
+    default: 1
+
+    -s|--step VALUE
+    The step size for trapeze calculus.
+    default: 0.0001
+
+    -p|--port PORT
+    The port which master listens to.
+    default: 8989
+
+    -m|--master HOST
+    The master's host.
+    default: localhost
+
+    -h|--help
+    Show this message.
+

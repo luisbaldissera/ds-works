@@ -5,11 +5,11 @@
 #include <string.h>         // str*, malloc
 #include <sys/socket.h>     // socket, accept, listen
 #include <sys/time.h>
+#include <fcntl.h>
 #include <netinet/in.h>
 #include <netdb.h>
 #include <poll.h>
 #include <arpa/inet.h>
-#include <pthread.h>
 #include <stdbool.h>
 #include <errno.h>
 
@@ -40,6 +40,8 @@
 // package [ 5 min max ]
 #define CALC_FAIL       5
 
+#define HELP_PATH "assets/help.txt"
+
 #define UNDEF       ~0
 
 typedef struct {
@@ -63,31 +65,27 @@ int str2pack(char *str, pack_t *pack);
 void pack_send(int sock, pack_t *pack);
 // Read package data from a socket
 void pack_recv(int sock, pack_t *pack);
+// A cat for files
+void cat(char const *fname);
 
 int calc_integ(double (*f)(double), double min, double max, double dx, double *result);
 void print_usage();
 void bad_usage();
 
+void cat(char const *fname) {
+    int fd;
+    int size = 512;
+    char buffer[512];
+    fd = open(fname, O_RDONLY);
+    while (size == 512) {
+        size = read(fd, buffer, 512);
+        write(1, buffer, size);
+    }
+    close(fd);
+}
+
 void print_usage() {
-    fprintf(stderr, "USAGE\n\n");
-    fprintf(stderr, "\tinteg master [-n NUMBER] [-s VALUE] [-p PORT]\n");
-    fprintf(stderr, "\tinteg slave [-p PORT] [-m HOST] [-r]\n");
-    fprintf(stderr, "\tinteg -h\n");
-    fprintf(stderr, "\nOPTIONS\n\n");
-    fprintf(stderr, "\t-n|--number NUMBER\n");
-    fprintf(stderr, "\tThe number of expected slaves.\n");
-    fprintf(stderr, "\tdefault: 1\n\n");
-    fprintf(stderr, "\t-s|--step VALUE\n");
-    fprintf(stderr, "\tThe step size for trapeze calculus.\n");
-    fprintf(stderr, "\tdefault: 0.0001\n\n");
-    fprintf(stderr, "\t-p|--port PORT\n");
-    fprintf(stderr, "\tThe port which master listens to.\n");
-    fprintf(stderr, "\tdefault: 8989\n\n");
-    fprintf(stderr, "\t-m|--master HOST\n");
-    fprintf(stderr, "\tThe master's host.\n");
-    fprintf(stderr, "\tdefault: localhost\n\n");
-    fprintf(stderr, "\t-h|--help\n");
-    fprintf(stderr, "\tShow this message.\n\n");
+    cat(HELP_PATH);
     exit(0);
 }
 
