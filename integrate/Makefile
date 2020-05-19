@@ -1,6 +1,7 @@
 IDIR=inc
 SDIR=src
 ODIR=out
+BINP=$(HOME)/.local/bin
 vpath %.h $(IDIR)
 vpath %.c $(SDIR)
 vpath %.o $(ODIR)
@@ -17,6 +18,13 @@ CFLAGS=\
 
 all: compile
 
+install: compile $(BINP)
+	@echo "Adding program in $(BINP) ..."
+	cp $(APP) $(BINP)/$(APP)
+
+$(BINP):
+	mkdir -p $(HOME)/.local/bin
+
 compile: $(APP)
 
 $(APP): $(OBJ)
@@ -31,3 +39,7 @@ $(ODIR)/%.o: %.c %.h
 
 clean:
 	rm -fr $(ODIR)/*.o $(APP)
+
+uninstall:
+	@echo "Removing program from $(BINP) ..."
+	rm $(BINP)/$(APP)
