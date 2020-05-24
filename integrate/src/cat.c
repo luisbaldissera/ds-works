@@ -1,8 +1,9 @@
+#include "cat.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <fcntl.h>
 #include <unistd.h>
-#include "cat.h"
 
 void cat(char const *fname) {
     char buffer[512];
