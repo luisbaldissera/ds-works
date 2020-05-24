@@ -19,7 +19,10 @@ user@host1:...$ integ slave -m 'host0'
 user@host2:...$ integ slave -m 'host0'
 ```
 
-If `-m` option is not specified, `localhost` is used instead.
+If `-m` option is not specified, `localhost` is used.
 
-By default, master listens on port `8989`, it can be changed using `-p` option.
+By default, master listens on port 8989, it can be changed using `-p` option.
+
+The discretization interval for the integration calculus can be set using `-s` option, and it is assgined by default to 0.0001
+
 See `integ --help`.
