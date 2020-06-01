@@ -9,6 +9,7 @@
 #include <unistd.h>     // close
 #include <netdb.h>      // getaddrinfo
 
+// The function the will be integrated
 double (*slave_func) (double) = NULL;
 
 void slave_set_function(double (*f)(double)) {
@@ -43,7 +44,7 @@ void slave(char const *host, int port) {
     switch (pack.type) {
         case CALC_RESPONSE:
             printf("Calculating from %g to %g, with dx = %g...\n", pack.min, pack.max, pack.dx_res);
-            pack.dx_res = integrate(slave_func, pack.min, pack.max, pack.dx_res);
+            pack.dx_res = integrate(slave_func, pack.min, pack.max, pack.dx_res);	// Calculate integral
             pack.type = CALC_RESULT;
             printf("Result: %g\n", pack.dx_res);
             printf("Sending to master...\n");
@@ -52,8 +53,8 @@ void slave(char const *host, int port) {
         case CALC_NONEED:
             printf("Master doesn't need me. Good bye!\n");
             break;
-        default:
-            THROW(EPROTO);
+        default:		// Package was not correctly understood
+            THROW(EPROTO);  	// Prints "Protocol Error" and exit
     }
 
     close(sock);

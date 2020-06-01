@@ -6,9 +6,9 @@
 #include <sys/socket.h>     // socket, bind, listen
 #include <netdb.h>          // sockaddr*
 #include <string.h>         // bzero
-#include <poll.h>           // poll
+#include <poll.h>           // poll, pollfd
 #include <stdbool.h>        // true, false
-#include "commons.h"        // pack_send, pack_recv
+#include "commons.h"        // pack_send, pack_recv, ERR_EXIT, THROW
 
 void master(int port, int slaves, double dx) {
     int TRUE = true;            //
@@ -47,37 +47,37 @@ void master(int port, int slaves, double dx) {
     // Start listening (incoming connections up to 10)
     ERR_EXIT(listen(srv, 5));
     printf("Listening on port %d...\n", port);
-    // intialize pool
+    // intialize pool with server socket
     bzero(sfd, sizeof(sfd));
     sfd[0].fd = srv;
     sfd[0].events = POLLIN;
     i = 1;
     // Starts server routine
     while (deliv > 0 || chunk > 0) {
-        poll(sfd, i, 100);
+        poll(sfd, i, 100);		// Blocks execution util something happens in any socket
         for (j = 0; j < i; j++) {
-            if (sfd[j].revents & POLLIN) {
-                if (sfd[j].fd == srv) { // Server was triggered (new client)
-                    sock = accept(srv, NULL, NULL);
-                    sfd[i].fd = sock;
+            if (sfd[j].revents & POLLIN) {	// Check if socket[j] received input
+                if (sfd[j].fd == srv) { 		// Server was triggered (new client)
+                    sock = accept(srv, NULL, NULL);	// Accept new client (slave)
+                    sfd[i].fd = sock;			// Adds client to be listened
                     sfd[i].events = POLLIN;
                     sfd[i].revents = 0;
                     i++;
                     printf("New slave connected.\n");
-                } else { // Client is speaking
+                } else { 				// Client is speaking
                     bzero(&pack, sizeof(pack));
-                    pack_recv(sfd[j].fd, &pack);
+                    pack_recv(sfd[j].fd, &pack);	// Read socket
                     switch (pack.type) {
-                        case CALC_REQUEST:
-                            printf("Slave requested for calculus\n");
+                        case CALC_REQUEST:		// Slave request calculus
+                            printf("Slave requested calculus\n");
                             bzero(&pack, sizeof(pack));
-                            if (chunk == 0) {
+                            if (chunk == 0) {		// All calculus was delivered
                                 pack.type = CALC_NONEED;
                                 printf("No need for more calculus.\n");
                                 pack_send(sfd[j].fd, &pack);
                                 close(sfd[j].fd);
-                                sfd[j].fd = -1; // ignore socket
-                            } else {
+                                sfd[j].fd = -1;		// Ignore socket events
+                            } else {			// Answer slave with calculus interval
                                 pack.type = CALC_RESPONSE;
                                 pack.min = start;
                                 start += size;
@@ -89,7 +89,7 @@ void master(int port, int slaves, double dx) {
                                 printf("Calculates from %g to %g with dx = %g\n", pack.min, pack.max, pack.dx_res);
                             }
                             break;
-                        case CALC_RESULT:
+                        case CALC_RESULT:		// Slave endded calculus and returned it
                             printf("Slave ended calculus.\n");
                             printf(":: from %g to %g. Result: %g\n", pack.min, pack.max, pack.dx_res);
                             sum += pack.dx_res;
@@ -97,7 +97,7 @@ void master(int port, int slaves, double dx) {
                             close(sfd[j].fd);
                             sfd[j].fd = -1;
                             break;
-                        case CALC_FAIL:
+                        case CALC_FAIL:			// Slave calculus failed
                             printf("Slave calculus failed.\n");
                             chunk++;
                             deliv--;
@@ -107,8 +107,8 @@ void master(int port, int slaves, double dx) {
                             close(sfd[j].fd);
                             sfd[j].fd = -1;
                             break;
-                        default:
-                            THROW(EPROTO);
+                        default:			// Message received was not correctly understood
+                            THROW(EPROTO);		// Show "Protocol Error" and exits
                     }
                 }
             }

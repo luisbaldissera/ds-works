@@ -12,7 +12,7 @@ double integrate(double (*f)(double), double min, double max, double dx) {
     while (x <= max) {
         trapeze = cache;
         cache = f(x);
-        trapeze = (trapeze + cache) * fac;
+        trapeze = (trapeze + cache) * fac; // Calculates trapeze area
         sum += trapeze;
         x += dx;
     }

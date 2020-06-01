@@ -25,6 +25,7 @@ void bad_usage() {
     exit(1);
 }
 
+// f(x) = sqrt{100^2 - x^2}
 double func (double x) {
     return sqrt(10000.0 - x*x);
 }
@@ -38,14 +39,19 @@ int main(int argc, char const *argv[]) {
     int i;                          // the loop iterator
     int err;                        // the error checker
     int type = -1;                  // the type of this process (MASTER | SLAVE)
-    // START arguments verification
+    /////////////////////////////////////////////////
+    // Args verify
+    /////////////////////////////////////////////////
     if (argc < 2) {
         bad_usage();
     }
+    // help option
     if (strcmp(argv[1], "-h") == 0 || strcmp(argv[1], "--help") == 0) {
         print_usage();
+    // master type
     } else if (strcmp(argv[1], "master") == 0) {
         type = MASTER;
+    // slave type
     } else if (strcmp(argv[1], "slave") == 0) {
         type = SLAVE;
     } else {
@@ -127,11 +133,11 @@ int main(int argc, char const *argv[]) {
     
     switch (type) {
         case MASTER:
-            master(port, number, step);
+            master(port, number, step);   // master main routine
             break;
         case SLAVE:
-            slave_set_function(func);
-            slave(host, port);
+            slave_set_function(func);     // set function to sqrt(100^2 - x^2)
+            slave(host, port);      	  // slave main routine
             break;
         default:
             fprintf(stderr, "Error: undefinied master/slave.\n");

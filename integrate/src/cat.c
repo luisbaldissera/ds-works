@@ -5,6 +5,7 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+// Prints out a file
 void cat(char const *fname) {
     char buffer[512];
     int size = 512;
