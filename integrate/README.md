@@ -1,7 +1,7 @@
 # Integrate
 
 Integrate is a basic integration with trapeze method in a distributed system.
-Currently, it only supports one type of function: <img src="https://rawgit.com/in	git@github.com:luisbaldissera/ds-works/None/svgs/ad0609715f335782dffbef1b14a9256a.svg?invert_in_darkmode" align=middle width=82.59141000000001pt height=28.71230999999999pt/>.
+Currently, it only supports one type of function: ![svg](svgs/ad0609715f335782dffbef1b14a9256a.svg)
 
 ## Compiling
 
