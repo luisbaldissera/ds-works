@@ -1,7 +1,7 @@
 USAGE
 
-    integ master [-n NUMBER] [-s VALUE] [-p PORT]
-    integ slave [-p PORT] [-m HOST]
+    integ master [-n NUMBER] [-s VALUE] [-p PORT] [-q]
+    integ slave [-p PORT] [-m HOST] [-q]
     integ -h
 
 OPTIONS
@@ -21,6 +21,10 @@ OPTIONS
     -m|--master HOST
     The master's host.
     default: localhost
+
+    -q|--quiet
+    Do not show output. Only errors and
+    timing are showed.
 
     -h|--help
     Show this message.

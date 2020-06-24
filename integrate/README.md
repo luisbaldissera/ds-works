@@ -2,6 +2,7 @@
 
 Integrate is a basic integration with trapeze method in a distributed system.
 Currently, it only supports one type of function: ![svg](svgs/ad0609715f335782dffbef1b14a9256a.svg)
+$f(x)$
 
 ## Compiling
 

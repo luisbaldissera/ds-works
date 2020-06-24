@@ -1,6 +1,9 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 #include <math.h>
+#include <time.h>
+#include <sys/time.h>
 
 #include "cat.h"
 #include "commons.h"
@@ -59,6 +62,8 @@ int main(int argc, char const *argv[]) {
         bad_usage();
     }
     i = 2;
+    // By default, printing is enabled
+    set_print(1);
     while (i < argc) {
         // -n | --number option
         if (strcmp(argv[i], "-n") == 0 || strcmp(argv[i], "--number") == 0) {
@@ -124,13 +129,15 @@ int main(int argc, char const *argv[]) {
             }
             i++;
             continue;
+        } else if (strcmp(argv[i], "-q") == 0 || strcmp(argv[i], "--quiet") == 0) {
+            set_print(0);
+            i++;
         } else {
             fprintf(stderr, "Error: invalid option '%s'.\n", argv[i]);
             bad_usage();
         }
     }
     // END arguments verification
-    
     switch (type) {
         case MASTER:
             master(port, number, step);   // master main routine
@@ -141,8 +148,6 @@ int main(int argc, char const *argv[]) {
             break;
         default:
             fprintf(stderr, "Error: undefinied master/slave.\n");
-
     }
-    
     return 0;
 }

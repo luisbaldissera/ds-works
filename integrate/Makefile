@@ -40,6 +40,9 @@ $(ODIR)/%.o: %.c %.h
 clean:
 	rm -fr $(ODIR)/*.o $(APP)
 
+test: compile
+	./experiments
+
 uninstall:
 	@echo "Removing program from $(BINP) ..."
 	rm $(BINP)/$(APP)

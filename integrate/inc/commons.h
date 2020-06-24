@@ -59,4 +59,20 @@ void pack_send(int sock, pack_t *src);
 // Receives a package from a socket
 void pack_recv(int sock, pack_t *dest);
 
+///////////////////////////////////////////////////////////////////////
+// A special printf that can be disllowed by set_print. By default it
+// is allowed. The usage is exactaly same as printf. To disallow, use
+// set_print(0)
+int print(char const *fmt, ...);
+void set_print(int set);
+
+//////////////////////////////////////////////////////////////////////
+// TIMING ////////////////////////////////////////////////////////////
+//////////////////////////////////////////////////////////////////////
+// tik and tok are defined to measure time. When use tik, timer is
+// reset, and when use tok, the number of milliseconds past from last 
+// tik is returned.
+void tic();
+double toc();
+
 #endif

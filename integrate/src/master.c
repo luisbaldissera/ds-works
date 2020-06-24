@@ -8,7 +8,8 @@
 #include <string.h>         // bzero
 #include <poll.h>           // poll, pollfd
 #include <stdbool.h>        // true, false
-#include "commons.h"        // pack_send, pack_recv, ERR_EXIT, THROW
+#include <time.h>           // clock
+#include "commons.h"        // pack_send, pack_recv, ERR_EXIT, THROW, print
 
 void master(int port, int slaves, double dx) {
     int TRUE = true;            //
@@ -25,6 +26,7 @@ void master(int port, int slaves, double dx) {
     struct sockaddr_in address; // The server socket address
     int addrlen;                // Size of address struct
     int j;                      // Loop iterator
+    double texec;               // Time of executions
     // Initialize variables
     chunk = slaves;
     deliv = 0;
@@ -33,7 +35,7 @@ void master(int port, int slaves, double dx) {
     size = 100.0 / slaves;
     addrlen = sizeof(address);
     // Open Server socket
-    printf("Opening MASTER socket...\n");
+    print("Opening MASTER socket...\n");
     ERR_EXIT(srv = socket(AF_INET, SOCK_STREAM, 0));
     ERR_EXIT(setsockopt(srv, SOL_SOCKET, SO_REUSEADDR, &(TRUE), sizeof(true)));
     // Configure address
@@ -42,11 +44,11 @@ void master(int port, int slaves, double dx) {
     address.sin_addr.s_addr = INADDR_ANY;   // localhost
     address.sin_port = htons(port);         // set port
     // Attach server socket to port
-    printf("Attaching socket to port %d...\n", port);
+    print("Attaching socket to port %d...\n", port);
     ERR_EXIT(bind(srv, (struct sockaddr *) &address, sizeof(address)));
     // Start listening (incoming connections up to 10)
     ERR_EXIT(listen(srv, 5));
-    printf("Listening on port %d...\n", port);
+    print("Listening on port %d...\n", port);
     // intialize pool with server socket
     bzero(sfd, sizeof(sfd));
     sfd[0].fd = srv;
@@ -58,22 +60,23 @@ void master(int port, int slaves, double dx) {
         for (j = 0; j < i; j++) {
             if (sfd[j].revents & POLLIN) {	// Check if socket[j] received input
                 if (sfd[j].fd == srv) { 		// Server was triggered (new client)
+                    if (i == 1) tic(); // Starts counting time in the first slave connection
                     sock = accept(srv, NULL, NULL);	// Accept new client (slave)
                     sfd[i].fd = sock;			// Adds client to be listened
                     sfd[i].events = POLLIN;
                     sfd[i].revents = 0;
                     i++;
-                    printf("New slave connected.\n");
+                    print("New slave connected.\n");
                 } else { 				// Client is speaking
                     bzero(&pack, sizeof(pack));
                     pack_recv(sfd[j].fd, &pack);	// Read socket
                     switch (pack.type) {
                         case CALC_REQUEST:		// Slave request calculus
-                            printf("Slave requested calculus\n");
+                            print("Slave requested calculus\n");
                             bzero(&pack, sizeof(pack));
                             if (chunk == 0) {		// All calculus was delivered
                                 pack.type = CALC_NONEED;
-                                printf("No need for more calculus.\n");
+                                print("No need for more calculus.\n");
                                 pack_send(sfd[j].fd, &pack);
                                 close(sfd[j].fd);
                                 sfd[j].fd = -1;		// Ignore socket events
@@ -86,19 +89,19 @@ void master(int port, int slaves, double dx) {
                                 pack_send(sfd[j].fd, &pack);
                                 chunk--;
                                 deliv++;
-                                printf("Calculates from %g to %g with dx = %g\n", pack.min, pack.max, pack.dx_res);
+                                print("Calculates from %g to %g with dx = %g\n", pack.min, pack.max, pack.dx_res);
                             }
                             break;
                         case CALC_RESULT:		// Slave endded calculus and returned it
-                            printf("Slave ended calculus.\n");
-                            printf(":: from %g to %g. Result: %g\n", pack.min, pack.max, pack.dx_res);
+                            print("Slave ended calculus.\n");
+                            print(":: from %g to %g. Result: %g\n", pack.min, pack.max, pack.dx_res);
                             sum += pack.dx_res;
                             deliv--;
                             close(sfd[j].fd);
                             sfd[j].fd = -1;
                             break;
                         case CALC_FAIL:			// Slave calculus failed
-                            printf("Slave calculus failed.\n");
+                            print("Slave calculus failed.\n");
                             chunk++;
                             deliv--;
                             bzero(&pack, sizeof(pack));
@@ -114,7 +117,10 @@ void master(int port, int slaves, double dx) {
             }
         }
     }
-    printf("Result: %g\n", sum);
+    // Ends timer
+    texec = toc();
+    print("Result: %g\n", sum);
+    printf("Time: %g ms\n", texec);
     // Close opened sockets
     for (j = 0; j < i; j++) {
         if (sfd[j].fd != -1) {

@@ -1,0 +1,47 @@
+#!/bin/bash
+
+OUT="exp.csv"
+HEADER=("SLAVES" "DX" "TIME")
+TESTS=10
+MAKE="make"
+SLAV=(1 2 4 10)
+DX=(0.0001 0.00001 0.000001)
+TIME="/usr/bin/time"
+
+function single {
+    N=$1
+    S=$2
+    ./integ master -q -n $N -s $S &
+    sleep 2
+    for i in `seq 1 $N`; do
+        ./integ slave -q &
+    done
+    sleep 2
+}
+
+function save {
+    arr=($@)
+    echo "${arr[*]}" | sed 's/ /,/g' >> ${OUT}
+}
+
+# Compile it if necessary
+${MAKE} 1>/dev/null
+# Write header
+save "${HEADER[*]}"
+echo "Lets go"
+for n in ${SLAV[@]}; do
+    for delt in ${DX[@]}; do
+        echo "Calculating N=$n DELT=$delt"
+        sum=0
+        for k in $(seq 1 ${TESTS}); do
+            echo -n '.'
+            tm=$(single $n $delt | cut -f2 -d' ')
+            sum=$(awk 'BEGIN{ printf "%g", '$sum'+'$tm' }')
+        done
+        tm=$(awk 'BEGIN{ printf "%g", '$sum'/'$TESTS' }')
+        row=(${n} ${delt} ${tm})
+        save "${row[*]}"
+        echo ""
+        echo "added: ${row[*]}"
+    done
+done
