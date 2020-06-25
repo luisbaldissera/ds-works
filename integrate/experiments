@@ -26,6 +26,8 @@ function save {
 
 # Compile it if necessary
 ${MAKE} 1>/dev/null
+# Create empty out file
+echo -n "" > ${OUT}
 # Write header
 save "${HEADER[*]}"
 echo "Lets go"
