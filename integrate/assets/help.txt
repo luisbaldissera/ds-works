@@ -1,7 +1,11 @@
-USAGE
-
+MASTER & SLAVE USAGE
     integ master [-n NUMBER] [-s VALUE] [-p PORT] [-q]
     integ slave [-p PORT] [-m HOST] [-q]
+
+MPI USAGE
+    integ mpi [-n NUMBER] [-s VALUE]
+
+HELP
     integ -h
 
 OPTIONS
