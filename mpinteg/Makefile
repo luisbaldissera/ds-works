@@ -6,7 +6,6 @@ vpath %.h $(IDIR)
 vpath %.c $(SDIR)
 vpath %.o $(ODIR)
 APP=mpinteg
-LAUNCH=launch
 INC=$(wildcard $(IDIR)/*.h)
 SRC=$(wildcard $(SDIR)/*.c)
 OBJ=$(patsubst $(SDIR)/%.c,$(ODIR)/%.o,$(SRC))
@@ -18,10 +17,6 @@ CFLAGS=\
 .PHONY: clean compile
 
 all: compile
-
-install: compile $(BINP)
-	@echo "Adding program in $(BINP) ..."
-	cp $(APP) $(BINP)/$(APP)
 
 $(BINP):
 	mkdir -p $(HOME)/.local/bin
@@ -38,19 +33,9 @@ $(ODIR)/%.o: %.c %.h
 	mkdir -p $(ODIR)
 	$(CC) -o $@ -c $< $(CFLAGS)
 
-
-$(LAUNCH):
-	@echo "Creating launcher..."
-	@echo "#!/bin/bash \nif [ $$""# -lt 2 ]; then \n\techo 'Usage: launch <number> <dx>'; \n\texit; \nfi;\nN=$$""1; \nDX=$$""2; \nmpirun -np $$""N ./$(APP) $$""DX" >> $@
-	chmod 0744 $@
-
+test:
+	. make_experiments.sh
 
 clean:
-	rm -fr $(ODIR)/*.o $(APP) $(LAUNCH)
+	rm -fr $(ODIR)/*.o $(APP)
 
-test: compile
-	./experiments
-
-uninstall:
-	@echo "Removing program from $(BINP) ..."
-	rm $(BINP)/$(APP)
