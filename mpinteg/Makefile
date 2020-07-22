@@ -34,7 +34,7 @@ $(ODIR)/%.o: %.c %.h
 	$(CC) -o $@ -c $< $(CFLAGS)
 
 test:
-	. make_experiments.sh
+	./make_experiments.sh
 
 clean:
 	rm -fr $(ODIR)/*.o $(APP)
