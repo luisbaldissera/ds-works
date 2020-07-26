@@ -1,0 +1,10 @@
+*~
+*.swp
+*.o
+*/relatorio*
+*.pdf
+*.zip
+
+*/integ
+*/mpinteg
+*/launch

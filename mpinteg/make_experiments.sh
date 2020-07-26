@@ -1,7 +1,7 @@
 #!/bin/bash
 procs=(1 2 4 8 10)
 dx=(0.0001 0.00001 0.000001)
-tests=10
+tests=30
 
 python3 <<EOF
 import numpy as np

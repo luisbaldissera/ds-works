@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
     }
     i = 2;
     while (i < argc) {
+        // If '-t' options is set. only prints time elapse
         if (strcmp(argv[i], "-t") == 0) {
             set_print(0);
         }
